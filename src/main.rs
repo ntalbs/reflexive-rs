@@ -3,10 +3,7 @@ use std::collections::HashMap;
 use actix_web::*;
 use actix_web::http::HeaderMap;
 use serde_json::json;
-
-fn body_as_str<'a>(body: &'a web::Bytes) -> &'a str {
-    std::str::from_utf8(&body[..]).unwrap()
-}
+use serde_urlencoded::from_str;
 
 fn headers_as_map(headers: &HeaderMap) -> HashMap<String, String> {
     let mut map = HashMap::new();
@@ -28,6 +25,23 @@ fn headers_as_map(headers: &HeaderMap) -> HashMap<String, String> {
     map
 }
 
+fn queries_as_map(query_string: &str) -> HashMap<String, String> {
+    let mut map = HashMap::new();
+    let queries = from_str::<Vec<(String, String)>>(query_string).unwrap();
+
+    for (k, v) in queries.iter() {
+        match map.get_mut(k) {
+            None => {
+                map.insert(k.into(), v.into());
+            },
+            Some(old_val) => {
+                *old_val = format!("{}, {}", old_val, v);
+            }
+        }
+    }
+    map
+}
+
 #[route(
     "/*",
     method = "GET",
@@ -40,13 +54,13 @@ fn headers_as_map(headers: &HeaderMap) -> HashMap<String, String> {
     method = "TRACE",
     method = "PATCH"
 )]
-async fn echo(req: HttpRequest, body: web::Bytes) -> impl Responder {
+async fn echo(req: HttpRequest, body: String) -> impl Responder {
     let response = json!({
         "method": req.method().as_str(),
         "path": req.path(),
-        "query": req.query_string(),
+        "query": queries_as_map(req.query_string()),
         "headers": headers_as_map(req.headers()),
-        "body": body_as_str(&body),
+        "body": body,
     });
 
     HttpResponse::Ok()
