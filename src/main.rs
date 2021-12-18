@@ -3,24 +3,47 @@ use std::collections::HashMap;
 use actix_web::http::HeaderMap;
 use actix_web::*;
 use serde::Serialize;
-use serde::ser::SerializeStruct;
+use serde::ser::{SerializeStruct, SerializeSeq};
 use serde_urlencoded::from_str;
 
-fn headers_as_map(headers: &HeaderMap) -> HashMap<String, String> {
-    let mut map = HashMap::new();
-    for (header, value) in headers.iter() {
-        let k = header.as_str();
-        let v = value.to_str().unwrap_or("Non-ASCII header value").into();
-        match map.get_mut(k) {
-            None => {
-                map.insert(k.into(), v);
+enum SingleOrMulti<'a> {
+    Single(&'a str),
+    Multi(Vec<&'a str>),
+}
+
+impl <'a> Serialize for SingleOrMulti<'a> {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        match self {
+            SingleOrMulti::Single(v) => {
+                serializer.serialize_str(v)
+            },
+            SingleOrMulti::Multi(vs) => {
+                let mut seq = serializer.serialize_seq(Some(vs.len()))?;
+                for e in vs {
+                    seq.serialize_element(e)?;
+                }
+                seq.end()
             }
-            Some(old_val) => {
-                *old_val = format!("{}, {}", old_val, v);
-            }
-        };
+        }
     }
-    map
+}
+
+fn headers_as_map(headers: &HeaderMap) -> HashMap<&str, SingleOrMulti> {
+    let mut ret = HashMap::new();
+    for key in headers.keys() {
+        let vs: Vec<&str> = headers.get_all(key).into_iter()
+            .map(|v| v.to_str().unwrap_or("<<Error: Contains Non-visible ASCII characters>>"))
+            .collect();
+
+        let k = key.as_str();
+        let v = if vs.len() > 1 {
+            SingleOrMulti::Multi(vs)
+        } else {
+            SingleOrMulti::Single(vs[0])
+        };
+        ret.insert(k, v);
+    }
+    ret
 }
 
 fn queries_as_map(query_string: &str) -> HashMap<String, String> {
@@ -44,7 +67,7 @@ struct EchoResponse<'a> {
     method: &'a str,
     path: &'a str,
     queries: HashMap<String, String>,
-    headers: HashMap<String, String>,
+    headers: HashMap<&'a str, SingleOrMulti<'a>>,
     body: String,
 }
 
