@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use actix_web::http::HeaderMap;
 use actix_web::*;
@@ -28,8 +28,8 @@ impl <'a> Serialize for SingleOrMulti<'a> {
     }
 }
 
-fn headers_as_map(headers: &HeaderMap) -> HashMap<&str, SingleOrMulti> {
-    let mut ret = HashMap::new();
+fn headers_as_map(headers: &HeaderMap) -> BTreeMap<&str, SingleOrMulti> {
+    let mut ret = BTreeMap::new();
     for key in headers.keys() {
         let vs: Vec<&str> = headers.get_all(key).into_iter()
             .map(|v| v.to_str().unwrap_or("<<Error: Contains Non-visible ASCII characters>>"))
@@ -46,8 +46,8 @@ fn headers_as_map(headers: &HeaderMap) -> HashMap<&str, SingleOrMulti> {
     ret
 }
 
-fn queries_as_map(query_string: &str) -> HashMap<&str, SingleOrMulti> {
-    let mut ret = HashMap::new();
+fn queries_as_map(query_string: &str) -> BTreeMap<&str, SingleOrMulti> {
+    let mut ret = BTreeMap::new();
     let queries = from_str::<Vec<(&str, &str)>>(query_string).unwrap();
 
     for (k, v) in queries {
@@ -71,8 +71,8 @@ fn queries_as_map(query_string: &str) -> HashMap<&str, SingleOrMulti> {
 struct EchoResponse<'a> {
     method: &'a str,
     path: &'a str,
-    queries: HashMap<&'a str, SingleOrMulti<'a>>,
-    headers: HashMap<&'a str, SingleOrMulti<'a>>,
+    queries: BTreeMap<&'a str, SingleOrMulti<'a>>,
+    headers: BTreeMap<&'a str, SingleOrMulti<'a>>,
     body: String,
 }
 
