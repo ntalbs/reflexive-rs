@@ -46,27 +46,32 @@ fn headers_as_map(headers: &HeaderMap) -> HashMap<&str, SingleOrMulti> {
     ret
 }
 
-fn queries_as_map(query_string: &str) -> HashMap<String, String> {
-    let mut map = HashMap::new();
-    let queries = from_str::<Vec<(String, String)>>(query_string).unwrap();
+fn queries_as_map(query_string: &str) -> HashMap<&str, SingleOrMulti> {
+    let mut ret = HashMap::new();
+    let queries = from_str::<Vec<(&str, &str)>>(query_string).unwrap();
 
-    for (k, v) in queries.iter() {
-        match map.get_mut(k) {
+    for (k, v) in queries {
+        match ret.get_mut(k) {
             None => {
-                map.insert(k.into(), v.into());
+                ret.insert(k, SingleOrMulti::Single(v));
             }
-            Some(old_val) => {
-                *old_val = format!("{}, {}", old_val, v);
+            Some(SingleOrMulti::Single(ov)) => {
+                let vs = vec![*ov, v];
+                ret.insert(k, SingleOrMulti::Multi(vs));
+            }
+            Some(SingleOrMulti::Multi(vs)) => {
+                vs.push(v);
             }
         }
     }
-    map
+
+    ret
 }
 
 struct EchoResponse<'a> {
     method: &'a str,
     path: &'a str,
-    queries: HashMap<String, String>,
+    queries: HashMap<&'a str, SingleOrMulti<'a>>,
     headers: HashMap<&'a str, SingleOrMulti<'a>>,
     body: String,
 }
