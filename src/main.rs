@@ -77,10 +77,7 @@ struct EchoResponse<'a> {
 }
 
 impl<'a> Serialize for EchoResponse<'a> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut state = serializer.serialize_struct("Echo", 5)?;
         state.serialize_field("method", &self.method)?;
         state.serialize_field("path", &self.path)?;
@@ -121,7 +118,6 @@ async fn echo(req: HttpRequest, body: String) -> impl Responder {
 async fn main() -> std::io::Result<()> {
     let server = HttpServer::new(|| App::new().service(echo));
     println!("Serving on http://localhost:8080");
-
     server
         .bind("127.0.0.1:8080")?
         .run()
