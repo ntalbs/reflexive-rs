@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 
 use actix_web::http::HeaderMap;
 use actix_web::*;
+use serde::ser::{SerializeSeq, SerializeStruct};
 use serde::Serialize;
-use serde::ser::{SerializeStruct, SerializeSeq};
 use serde_urlencoded::from_str;
 
 enum SingleOrMulti<'a> {
@@ -11,12 +11,10 @@ enum SingleOrMulti<'a> {
     Multi(Vec<&'a str>),
 }
 
-impl <'a> Serialize for SingleOrMulti<'a> {
+impl<'a> Serialize for SingleOrMulti<'a> {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         match self {
-            SingleOrMulti::Single(v) => {
-                serializer.serialize_str(v)
-            },
+            SingleOrMulti::Single(v) => serializer.serialize_str(v),
             SingleOrMulti::Multi(vs) => {
                 let mut seq = serializer.serialize_seq(Some(vs.len()))?;
                 for e in vs {
@@ -31,8 +29,13 @@ impl <'a> Serialize for SingleOrMulti<'a> {
 fn headers_as_map(headers: &HeaderMap) -> BTreeMap<&str, SingleOrMulti> {
     let mut ret = BTreeMap::new();
     for key in headers.keys() {
-        let vs: Vec<&str> = headers.get_all(key).into_iter()
-            .map(|v| v.to_str().unwrap_or("<<Error: Contains Non-visible ASCII characters>>"))
+        let vs: Vec<&str> = headers
+            .get_all(key)
+            .into_iter()
+            .map(|v| {
+                v.to_str()
+                    .unwrap_or("<<Error: Contains Non-visible ASCII characters>>")
+            })
             .collect();
 
         let k = key.as_str();
@@ -118,8 +121,5 @@ async fn echo(req: HttpRequest, body: String) -> impl Responder {
 async fn main() -> std::io::Result<()> {
     let server = HttpServer::new(|| App::new().service(echo));
     println!("Serving on http://localhost:8080");
-    server
-        .bind("127.0.0.1:8080")?
-        .run()
-        .await
+    server.bind("127.0.0.1:8080")?.run().await
 }
