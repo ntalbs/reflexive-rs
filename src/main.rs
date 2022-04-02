@@ -1,6 +1,5 @@
 use actix_web::http::HeaderMap;
 use actix_web::*;
-use env_logger;
 use log::info;
 use serde::ser::{SerializeSeq, SerializeStruct};
 use serde::Serialize;
