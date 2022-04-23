@@ -1,5 +1,6 @@
-use actix_web::http::HeaderMap;
+use actix_web::http::header::HeaderMap;
 use actix_web::*;
+use actix_web::{http::header, HttpResponse};
 use log::info;
 use serde::ser::{SerializeSeq, SerializeStruct};
 use serde::Serialize;
@@ -92,7 +93,7 @@ impl<'a> Serialize for EchoResponse<'a> {
 }
 
 #[route(
-    "/*",
+    "/{_:.*}",
     method = "GET",
     method = "POST",
     method = "PUT",
@@ -120,13 +121,15 @@ async fn echo(req: HttpRequest, body: String) -> impl Responder {
     };
 
     HttpResponse::Ok()
-        .header("Content-Type", "application/json")
+        .insert_header(header::ContentType(mime::APPLICATION_JSON))
         .body(serde_json::to_string(&response).unwrap())
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
-    let server = HttpServer::new(|| App::new().service(echo));
-    server.bind("127.0.0.1:8080")?.run().await
+    HttpServer::new(|| App::new().service(echo))
+        .bind("127.0.0.1:8080")?
+        .run()
+        .await
 }
