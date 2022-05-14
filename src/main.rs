@@ -1,12 +1,22 @@
 use actix_web::http::header::HeaderMap;
 use actix_web::*;
 use actix_web::{http::header, HttpResponse};
+use clap::Parser;
 use log::info;
 use serde::ser::{SerializeSeq, SerializeStruct};
 use serde::Serialize;
 use serde_urlencoded::from_str;
 use std::collections::BTreeMap;
 
+#[derive(Default, Debug, Parser)]
+#[clap(
+    version = "0.1.0",
+    about = "A Very simple http echo server"
+)]
+struct Arguments {
+    #[clap(short, long)]
+    port: u16,
+}
 enum SingleOrMulti<'a> {
     Single(&'a str),
     Multi(Vec<&'a str>),
@@ -128,8 +138,13 @@ async fn echo(req: HttpRequest, body: String) -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
+
+    let args = Arguments::parse();
+    let port = args.port;
+
+    info!("Starting server on port {port}");
     HttpServer::new(|| App::new().service(echo))
-        .bind("127.0.0.1:8080")?
+        .bind(format!("127.0.0.1:{port}"))?
         .run()
         .await
 }
