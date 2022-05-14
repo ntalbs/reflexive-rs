@@ -14,8 +14,10 @@ use std::collections::BTreeMap;
     about = "A Very simple http echo server"
 )]
 struct Arguments {
-    #[clap(short, long)]
+    #[clap(default_value_t=8080, short, long)]
     port: u16,
+    #[clap(default_value_t=6, short, long)]
+    workers: usize,
 }
 enum SingleOrMulti<'a> {
     Single(&'a str),
@@ -141,10 +143,12 @@ async fn main() -> std::io::Result<()> {
 
     let args = Arguments::parse();
     let port = args.port;
+    let workers = args.workers;
 
     info!("Starting server on port {port}");
     HttpServer::new(|| App::new().service(echo))
         .bind(format!("127.0.0.1:{port}"))?
+        .workers(workers)
         .run()
         .await
 }
