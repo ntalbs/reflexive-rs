@@ -10,14 +10,11 @@ use serde_urlencoded::from_str;
 use std::collections::BTreeMap;
 
 #[derive(Default, Debug, Parser)]
-#[clap(
-    version = "0.1.0",
-    about = "A Very simple http echo server"
-)]
+#[clap(version, about = "A Very simple http echo server")]
 struct Arguments {
-    #[clap(default_value_t=8080, short, long)]
+    #[clap(short, long, default_value_t = 8080)]
     port: u16,
-    #[clap(default_value_t=6, short, long)]
+    #[clap(short, long, default_value_t = 6)]
     workers: usize,
 }
 enum SingleOrMulti<'a> {
