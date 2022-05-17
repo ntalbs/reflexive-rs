@@ -2,6 +2,7 @@ use actix_web::http::header::HeaderMap;
 use actix_web::*;
 use actix_web::{http::header, HttpResponse};
 use clap::Parser;
+use env_logger::Env;
 use log::info;
 use serde::ser::{SerializeSeq, SerializeStruct};
 use serde::Serialize;
@@ -139,7 +140,7 @@ async fn echo(req: HttpRequest, body: String) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    env_logger::init();
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
     let args = Arguments::parse();
     let port = args.port;
