@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 #[derive(Default, Debug, Parser)]
 #[clap(version, about = "A Very simple http echo server")]
 struct Arguments {
-    #[clap(short, long, default_value_t = 8080)]
+    #[clap(short, long, default_value_t = 3000)]
     port: u16,
     #[clap(short, long, default_value_t = 6)]
     workers: usize,
