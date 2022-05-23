@@ -145,7 +145,7 @@ async fn main() -> std::io::Result<()> {
 
     info!("Starting server on port {port}");
     HttpServer::new(|| App::new().service(echo))
-        .bind(format!("127.0.0.1:{port}"))?
+        .bind(("0.0.0.0", port))?
         .workers(workers)
         .run()
         .await
