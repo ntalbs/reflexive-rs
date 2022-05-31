@@ -78,8 +78,11 @@ fn queries_as_map(query_string: &str) -> BTreeMap<&str, SingleOrMulti> {
             }
         }
     }
-
     ret
+}
+
+fn body_as_json(body: String) -> serde_json::Value {
+    serde_json::from_str(&body).unwrap_or(serde_json::Value::String(body))
 }
 
 struct EchoResponse<'a> {
@@ -87,7 +90,7 @@ struct EchoResponse<'a> {
     path: &'a str,
     queries: BTreeMap<&'a str, SingleOrMulti<'a>>,
     headers: BTreeMap<&'a str, SingleOrMulti<'a>>,
-    body: String,
+    body: serde_json::Value,
 }
 
 impl<'a> Serialize for EchoResponse<'a> {
@@ -127,7 +130,7 @@ async fn echo(req: HttpRequest, body: String) -> impl Responder {
         path: req.path(),
         queries: queries_as_map(req.query_string()),
         headers: headers_as_map(req.headers()),
-        body,
+        body: body_as_json(body),
     };
 
     HttpResponse::Ok()
