@@ -20,6 +20,7 @@ Reflexive uses `3000` as a default port and starts 6 workers. Those can be overr
 Reflexive uses [env_logger](https://docs.rs/env_logger/latest/env_logger/) that can be configured through environment variables. The default logging level is `info`. Assuming the binary is `reflexive`, you can override the default logging level like the following:
 
 ```
+$ RUST_LOG=trace ./reflexive
 [2022-05-24T08:47:41Z INFO  reflexive] Starting server on port 3000
 [2022-05-24T08:47:41Z INFO  actix_server::builder] Starting 6 workers
 [2022-05-24T08:47:41Z INFO  actix_server::server] Actix runtime found; starting in Actix runtime
