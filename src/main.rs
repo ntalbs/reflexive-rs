@@ -119,10 +119,10 @@ impl<'a> Serialize for EchoResponse<'a> {
 )]
 async fn echo(req: HttpRequest, body: String) -> impl Responder {
     info!(
-        "Request: {}: {}?{}",
+        "{}: {}{}",
         req.method(),
         req.path(),
-        req.query_string()
+        if req.query_string().is_empty() { "".to_string() } else { format!("?{}", req.query_string()) }
     );
 
     let response = EchoResponse {
