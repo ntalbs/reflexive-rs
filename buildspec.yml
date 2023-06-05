@@ -1,0 +1,17 @@
+version: 0.2
+
+phase:
+  install:
+    commands:
+      - echo "Installing Rust..."
+      - curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - source $HOME/.cargo/env
+  build:
+    commands:
+      - echo "Building Rust app..."
+      - cargo build --release
+  artifacts:
+    files:
+      - appspec.yml
+      - target/release/*
+      - scripts/*
