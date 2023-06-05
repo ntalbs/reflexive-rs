@@ -1,0 +1,17 @@
+version: 0.0
+os: linux
+files:
+  - source: target/release/reflexive
+    destination: /var/reflexive
+hooks:
+  AfterInstall:
+    - location: scripts/postinstall.sh
+      timeout: 180
+  ApplicationStart:
+    - location: scripts/start_server.sh
+      timeout: 300
+      runas: root
+  ApplicationStop:
+    - location: scripts/stop_server.sh
+      timeout: 300
+      runas: root
