@@ -121,7 +121,11 @@ async fn echo(req: HttpRequest, body: String) -> impl Responder {
         "{}: {}{}",
         req.method(),
         req.path(),
-        if req.query_string().is_empty() { "".to_string() } else { format!("?{}", req.query_string()) }
+        if req.query_string().is_empty() {
+            "".to_string()
+        } else {
+            format!("?{}", req.query_string())
+        }
     );
 
     let response = EchoResponse {
