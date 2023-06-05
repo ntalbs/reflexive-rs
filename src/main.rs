@@ -42,7 +42,6 @@ fn headers_as_map(headers: &HeaderMap) -> BTreeMap<&str, SingleOrMulti> {
     for key in headers.keys() {
         let vs: Vec<&str> = headers
             .get_all(key)
-            .into_iter()
             .map(|v| {
                 v.to_str()
                     .unwrap_or("<<Error: Contains Non-visible ASCII characters>>")
