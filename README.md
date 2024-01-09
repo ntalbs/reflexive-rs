@@ -4,14 +4,13 @@ Implements a HTTP echo service using [Actix](https://actix.rs/). Extracts HTTP m
 
 ## Usage
 ```
-USAGE:
-    reflexive [OPTIONS]
+Usage: reflexive [OPTIONS]
 
-OPTIONS:
-    -h, --help                 Print help information
-    -p, --port <PORT>          [default: 3000]
-    -V, --version              Print version information
-    -w, --workers <WORKERS>    [default: 6]
+Options:
+  -p, --port <PORT>        [default: 3000]
+  -w, --workers <WORKERS>  [default: 6]
+  -h, --help               Print help
+  -V, --version            Print version
 ```
 
 Reflexive uses `3000` as a default port and starts 6 workers. Those can be overridden with `-p` or `--port` option for port, `-w` or `--workers` option for the number of workers to start.
