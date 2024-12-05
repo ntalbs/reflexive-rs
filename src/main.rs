@@ -23,7 +23,7 @@ enum SingleOrMulti<'a> {
     Multi(Vec<&'a str>),
 }
 
-impl<'a> Serialize for SingleOrMulti<'a> {
+impl Serialize for SingleOrMulti<'_> {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         match self {
             SingleOrMulti::Single(v) => serializer.serialize_str(v),
@@ -93,7 +93,7 @@ struct EchoResponse<'a> {
     body: serde_json::Value,
 }
 
-impl<'a> Serialize for EchoResponse<'a> {
+impl Serialize for EchoResponse<'_> {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut state = serializer.serialize_struct("Echo", 5)?;
         state.serialize_field("method", &self.method)?;
