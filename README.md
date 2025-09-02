@@ -1,6 +1,6 @@
 # reflexive-rs
 
-Implements a HTTP echo service using [Actix](https://actix.rs/). Extracts HTTP method, request path, headers, query parameters, and request body and put them all in a JSON response.
+Implements a HTTP echo service using [Actix Web](https://actix.rs/). Extracts HTTP method, request path, headers, query parameters, and request body and put them all in a JSON response.
 
 ## Usage
 ```
@@ -14,6 +14,35 @@ Options:
 ```
 
 Reflexive uses `3000` as a default port and starts 6 workers. Those can be overridden with `-p` or `--port` option for port, `-w` or `--workers` option for the number of workers to start.
+
+Once `reflexive-rs` is up, it produces echo responses like the following:
+
+```
+$ curl -X POST "http://localhost:3000/path/to/req?q1=hello&q2=world" \
+  -H 'h1:a' \
+  -H 'h2:b' \
+  -H "Content-Type: application/x-www-form-urlencoded"  \
+  -d 'name=ntalbs&email=ntalbsen@gmail.com' | jq
+...
+{
+  "method": "POST",
+  "path": "/path/to/req",
+  "queries": {
+    "q1": "hello",
+    "q2": "world"
+  },
+  "headers": {
+    "accept": "*/*",
+    "content-length": "36",
+    "content-type": "application/x-www-form-urlencoded",
+    "h1": "a",
+    "h2": "b",
+    "host": "localhost:3000",
+    "user-agent": "curl/8.7.1"
+  },
+  "body": "name=ntalbs&email=ntalbsen@gmail.com"
+}
+```
 
 ## Override Logging level
 Reflexive uses [env_logger](https://docs.rs/env_logger/latest/env_logger/) that can be configured through environment variables. The default logging level is `info`. Assuming the binary is `reflexive`, you can override the default logging level like the following:
