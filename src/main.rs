@@ -38,7 +38,7 @@ impl Serialize for SingleOrMulti<'_> {
     }
 }
 
-fn headers_as_map(headers: &HeaderMap) -> BTreeMap<&str, SingleOrMulti> {
+fn headers_as_map(headers: &HeaderMap) -> BTreeMap<&str, SingleOrMulti<'_>> {
     let mut ret = BTreeMap::new();
     for key in headers.keys() {
         let vs: Vec<&str> = headers
@@ -60,7 +60,7 @@ fn headers_as_map(headers: &HeaderMap) -> BTreeMap<&str, SingleOrMulti> {
     ret
 }
 
-fn queries_as_map(query_string: &str) -> BTreeMap<&str, SingleOrMulti> {
+fn queries_as_map(query_string: &str) -> BTreeMap<&str, SingleOrMulti<'_>> {
     let mut ret = BTreeMap::new();
     let queries = from_str::<Vec<(&str, &str)>>(query_string).unwrap();
 
