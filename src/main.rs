@@ -3,6 +3,7 @@ use actix_web::{
     route, App, HttpRequest, HttpResponse, HttpServer, Responder,
 };
 use clap::Parser;
+use colored::Colorize;
 use env_logger::Env;
 use log::info;
 use serde::ser::{SerializeSeq, SerializeStruct};
@@ -119,9 +120,9 @@ impl Serialize for EchoResponse<'_> {
 )]
 async fn echo(req: HttpRequest, body: String) -> impl Responder {
     info!(
-        "{}: {}{}",
-        req.method(),
-        req.path(),
+        "{} {}{}",
+        req.method().as_str().blue(),
+        req.path().yellow(),
         if req.query_string().is_empty() {
             "".to_string()
         } else {
@@ -150,7 +151,7 @@ async fn main() -> std::io::Result<()> {
     let port = args.port;
     let workers = args.workers;
 
-    info!("Starting server on port {port}");
+    info!("Starting server on port {}", port.to_string().yellow().bold());
     HttpServer::new(|| App::new().service(echo))
         .bind(("0.0.0.0", port))?
         .workers(workers)
