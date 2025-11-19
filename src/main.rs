@@ -151,7 +151,10 @@ async fn main() -> std::io::Result<()> {
     let port = args.port;
     let workers = args.workers;
 
-    info!("Starting server on port {}", port.to_string().yellow().bold());
+    info!(
+        "Starting server on port {}",
+        port.to_string().yellow().bold()
+    );
     HttpServer::new(|| App::new().service(echo))
         .bind(("0.0.0.0", port))?
         .workers(workers)
